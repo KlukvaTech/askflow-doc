@@ -12,9 +12,11 @@ services:
     ports:
       - 8000:8000
     restart: on-failure
+    volumes:
+      - ./:/opt/pipelines
     environment:
       - DOCUMENTSTORE_PARAMS_HOST=elasticsearch
-      - PIPELINE_YAML_PATH=/opt/venv/lib/python3.10/site-packages/rest_api/pipeline/pipelines_dpr.haystack-pipeline.yml
+      - PIPELINE_YAML_PATH=/opt/pipelines/my_pipeline_dpr.haystack-pipeline.yml
     depends_on:
       elasticsearch:
         condition: service_healthy
