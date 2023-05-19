@@ -127,7 +127,7 @@ def main():
                     # Upload file
                     if data_file:
                         try:
-                            raw_json = upload_doc(data_file)
+                            raw_json = upload_doc(data_file, username)
                             st.sidebar.write(str(data_file.name) + " &nbsp;&nbsp; ✅ ")
                             if debug:
                                 st.subheader("REST API JSON response")
@@ -241,7 +241,7 @@ def main():
                 ):
                     try:
                         st.session_state.results, st.session_state.raw_json = query(
-                            question, top_k_reader=top_k_reader, top_k_retriever=top_k_retriever
+                            question, top_k_reader=top_k_reader, top_k_retriever=top_k_retriever, filters={"user": username}
                         )
                     except JSONDecodeError as je:
                         st.error("👓 &nbsp;&nbsp; An error occurred reading the results. Is the document store working?")

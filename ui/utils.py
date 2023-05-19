@@ -105,10 +105,15 @@ def send_feedback(query, answer_obj, is_correct_answer, is_correct_document, doc
         raise ValueError(f"An error was returned [code {response_raw.status_code}]: {response_raw.json()}")
 
 
-def upload_doc(file):
+def upload_doc(file, username):
     url = f"{API_ENDPOINT}/{DOC_UPLOAD}"
     files = [("files", file)]
-    response = requests.post(url, files=files).json()
+    payload = {
+        "meta": '{"user":"' + str(username) + '"}',
+        "additional_params": "null"
+    }
+    headers = {"accept": "application/json"}
+    response = requests.post(url, files=files, data=payload, headers=headers).json()
     return response
 
 
