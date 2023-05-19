@@ -4,6 +4,10 @@ cookie:
   name: some_cookie_name
 credentials:
   usernames:
+    ad:
+      email: sdafjks@skldfj.dsflj
+      name: ad
+      password: $2b$12$5Ur0I9EYe5FPyfFcQ4f2uePmrIY7tdekievZfsgwWdQsK.FW9mQNa
     admin:
       email: sdf@sdkfl.osd
       name: admin
