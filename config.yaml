@@ -1,0 +1,25 @@
+cookie:
+  expiry_days: 30
+  key: some_signature_key
+  name: some_cookie_name
+credentials:
+  usernames:
+    ad:
+      email: sdafjks@skldfj.dsflj
+      name: ad
+      password: $2b$12$5Ur0I9EYe5FPyfFcQ4f2uePmrIY7tdekievZfsgwWdQsK.FW9mQNa
+    admin:
+      email: sdf@sdkfl.osd
+      name: admin
+      password: $2b$12$O/HyyQ0WNPmpXBCQ7HSSOOX0xDtW0AX1ETgi0c51ba.5BCTYRlWa6
+    jsmith:
+      email: jsmith@gmail.com
+      name: John Smith
+      password: $2b$12$WfYWmlbauMxs.DLuOF1WUOfWuBkvBIgTqJ6IOWzymr3AG26yaueHO
+    rbriggs:
+      email: rbriggs@gmail.com
+      name: Rebecca Briggs
+      password: $2b$12$1D/EoCZ9NhFZKUce4Eze4ulsnpeS7c3i3621VSXVPQQsQYiyc8xOu
+preauthorized:
+  emails:
+  - melsby@gmail.com
