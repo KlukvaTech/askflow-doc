@@ -16,18 +16,15 @@ import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 
-# Adjust to a question that you would like users to see in the search bar when they load the UI:
+
 DEFAULT_QUESTION_AT_STARTUP = os.getenv("DEFAULT_QUESTION_AT_STARTUP", "What's the capital of France?")
 DEFAULT_ANSWER_AT_STARTUP = os.getenv("DEFAULT_ANSWER_AT_STARTUP", "Paris")
 
-# Sliders
 DEFAULT_DOCS_FROM_RETRIEVER = int(os.getenv("DEFAULT_DOCS_FROM_RETRIEVER", "3"))
 DEFAULT_NUMBER_OF_ANSWERS = int(os.getenv("DEFAULT_NUMBER_OF_ANSWERS", "3"))
 
-# Labels for the evaluation
 EVAL_LABELS = os.getenv("EVAL_FILE", str(Path(__file__).parent / "eval_labels_example.csv"))
 
-# Whether the file upload should be enabled or not
 DISABLE_FILE_UPLOAD = bool(os.getenv("DISABLE_FILE_UPLOAD"))
 
 
@@ -38,24 +35,20 @@ def set_state_if_absent(key, value):
 
 def main():
 
-    st.set_page_config(page_title="Haystack Demo", page_icon="https://haystack.deepset.ai/img/HaystackIcon.png")
+    st.set_page_config(page_title="Askflow", page_icon="https://haystack.deepset.ai/img/HaystackIcon.png")
 
-    # Persistent state
     set_state_if_absent("question", DEFAULT_QUESTION_AT_STARTUP)
     set_state_if_absent("answer", DEFAULT_ANSWER_AT_STARTUP)
     set_state_if_absent("results", None)
     set_state_if_absent("raw_json", None)
     set_state_if_absent("random_question_requested", False)
 
-    # Small callback to reset the interface in case the text of the question changes
     def reset_results(*args):
         st.session_state.answer = None
         st.session_state.results = None
         st.session_state.raw_json = None
-
-    #st.table(str(stauth.Hasher(['abc', 'def']).generate()))
-
-    with open('./config.yaml') as file:
+    path_to_config = str(Path(__file__).parent / "config.yaml")
+    with open(path_to_config) as file:
         config = yaml.load(file, Loader=SafeLoader)
 
     authenticator = stauth.Authenticate(
@@ -65,14 +58,14 @@ def main():
         config['cookie']['expiry_days'],
         config['preauthorized']
     )
-
+    st.write("# Askflow MVP")
     login, register = st.tabs(['Login', 'Sign up'])
 
     with register:
         try:
             if authenticator.register_user('Register user', preauthorization=False):
                 st.success('User registered successfully')
-            with open('./config.yaml', 'w') as file:
+            with open(path_to_config, 'w') as file:
                 yaml.dump(config, file, default_flow_style=False)
         except Exception as e:
             st.error(e)
@@ -81,22 +74,8 @@ def main():
         name, authentication_status, username = authenticator.login('Login', 'main')  
         
         if authentication_status:
+            
             authenticator.logout('Logout', 'main', key='unique_key')
-            st.write("# Haystack Demo - Explore the world")
-            st.markdown(
-                """
-        This demo takes its data from a selection of Wikipedia pages crawled in November 2021 on the topic of
-
-        <h3 style='text-align:center;padding: 0 0 1rem;'>Countries and capital cities</h3>
-
-        Ask any question on this topic and see if Haystack can find the correct answer to your query!
-
-        *Note: do not use keywords, but full-fledged questions.* The demo is not optimized to deal with keyword queries and might misunderstand you.
-        """,
-                unsafe_allow_html=True,
-            )
-
-            # Sidebar
             st.sidebar.header("Options")
             top_k_reader = st.sidebar.slider(
                 "Max. number of answers",
@@ -117,14 +96,12 @@ def main():
             eval_mode = st.sidebar.checkbox("Evaluation mode")
             debug = st.sidebar.checkbox("Show debug info")
 
-            # File upload block
             if not DISABLE_FILE_UPLOAD:
                 st.sidebar.write("## File Upload:")
                 data_files = st.sidebar.file_uploader(
                     "upload", type=["pdf", "txt", "docx"], accept_multiple_files=True, label_visibility="hidden"
                 )
                 for data_file in data_files:
-                    # Upload file
                     if data_file:
                         try:
                             raw_json = upload_doc(data_file, username)
@@ -162,15 +139,12 @@ def main():
             </style>
             <div class="haystack-footer">
                 <hr />
-                <h4>Built with <a href="https://haystack.deepset.ai/">Haystack</a>{hs_version}</h4>
-                <p>Get it on <a href="https://github.com/deepset-ai/haystack/">GitHub</a> &nbsp;&nbsp; - &nbsp;&nbsp; Read the <a href="https://docs.haystack.deepset.ai/docs">Docs</a></p>
-                <small>Data crawled from <a href="https://en.wikipedia.org/wiki/Category:Lists_of_countries_by_continent">Wikipedia</a> in November 2021.<br />See the <a href="https://creativecommons.org/licenses/by-sa/3.0/">License</a> (CC BY-SA 3.0).</small>
+                <h4>Project by Klukva Team</h4>
             </div>
             """,
                 unsafe_allow_html=True,
             )
 
-            # Load csv into pandas dataframe
             try:
                 df = pd.read_csv(EVAL_LABELS, sep=";")
             except Exception:
@@ -181,7 +155,6 @@ def main():
                     f"The eval file was not found under `{EVAL_LABELS}`. Please check the README (https://github.com/deepset-ai/haystack/tree/main/ui/README.md) for more information."
                 )
 
-            # Search bar
             question = st.text_input(
                 value=st.session_state.question,
                 max_chars=100,
@@ -223,9 +196,9 @@ def main():
             ) and not st.session_state.random_question_requested
 
             # Check the connection
-            with st.spinner("⌛️ &nbsp;&nbsp; Haystack is starting..."):
+            with st.spinner("⌛️ &nbsp;&nbsp; Askflow is starting..."):
                 if not haystack_is_ready():
-                    st.error("🚫 &nbsp;&nbsp; Connection Error. Is Haystack running?")
+                    st.error("🚫 &nbsp;&nbsp; Connection Error. Is Askflow running?")
                     run_query = False
                     reset_results()
 
@@ -236,8 +209,6 @@ def main():
 
                 with st.spinner(
                     "🧠 &nbsp;&nbsp; Performing neural search on documents... \n "
-                    "Do you want to optimize speed or accuracy? \n"
-                    "Check out the docs: https://haystack.deepset.ai/usage/optimization "
                 ):
                     try:
                         st.session_state.results, st.session_state.raw_json = query(
@@ -283,7 +254,7 @@ def main():
 
                     else:
                         st.info(
-                            "🤔 &nbsp;&nbsp; Haystack is unsure whether any of the documents contain an answer to your question. Try to reformulate it!"
+                            "🤔 &nbsp;&nbsp; Askflow is unsure whether any of the documents contain an answer to your question. Try to reformulate it!"
                         )
                         st.write("**Relevance:** ", result["relevance"])
 
