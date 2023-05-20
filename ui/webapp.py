@@ -59,7 +59,7 @@ def main():
         config['preauthorized']
     )
     st.write("# Askflow MVP")
-    login, register = st.tabs(['Login', 'Sign up'])
+    login, register, reset_password = st.tabs(['Login', 'Sign up', 'Reset password'])
 
     with register:
         try:
@@ -93,8 +93,8 @@ def main():
                 step=1,
                 on_change=reset_results,
             )
-            eval_mode = st.sidebar.checkbox("Evaluation mode")
-            debug = st.sidebar.checkbox("Show debug info")
+            eval_mode = False # st.sidebar.checkbox("Evaluation mode")
+            debug = False # st.sidebar.checkbox("Show debug info")
 
             if not DISABLE_FILE_UPLOAD:
                 st.sidebar.write("## File Upload:")
@@ -140,6 +140,8 @@ def main():
             <div class="haystack-footer">
                 <hr />
                 <h4>Project by Klukva Team</h4>
+                <h4>IRIT-RTF 2023</h4>
+                <hr />
             </div>
             """,
                 unsafe_allow_html=True,
@@ -299,5 +301,15 @@ def main():
                     st.write(st.session_state.raw_json)
         elif authentication_status is False:
             st.error('Username/password is incorrect')
+    
+    with reset_password:
+        if authentication_status:
+            try:
+                if authenticator.reset_password(username, 'Reset password'):
+                    st.success('Password modified successfully')
+                    with open(path_to_config, 'w') as file:
+                        yaml.dump(config, file, default_flow_style=False)
+            except Exception as e:
+                st.error(e)
 
 main()
