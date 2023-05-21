@@ -59,7 +59,7 @@ def main():
         config['preauthorized']
     )
     st.write("# Askflow MVP")
-    login, register, reset_password = st.tabs(['Login', 'Sign up', 'Reset password'])
+    login, register, reset_password, forgot_password = st.tabs(['Login', 'Sign up', 'Reset password', 'Forgot password'])
 
     with register:
         try:
@@ -311,5 +311,17 @@ def main():
                         yaml.dump(config, file, default_flow_style=False)
             except Exception as e:
                 st.error(e)
+
+    with forgot_password:
+        try:
+            username_forgot_pw, email_forgot_password, random_password = authenticator.forgot_password('Forgot password')
+            if username_forgot_pw:
+                st.success('New password sent securely')
+                with open(path_to_config, 'w') as file:
+                    yaml.dump(config, file, default_flow_style=False)
+            else:
+                st.error('Username not found')
+        except Exception as e:
+            st.error(e)
 
 main()
