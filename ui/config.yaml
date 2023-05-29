@@ -20,6 +20,14 @@ credentials:
       email: rbriggs@gmail.com
       name: Rebecca Briggs
       password: $2b$12$1D/EoCZ9NhFZKUce4Eze4ulsnpeS7c3i3621VSXVPQQsQYiyc8xOu
+    test:
+      email: test@example.com
+      name: Jonh McKey
+      password: $2b$12$KtWXMDLjokh5cBpYdjpM3eaNT7nkwswwD5lIa.RFPTA7WLs49zN5.
+    ulon:
+      email: ulon@duck.com
+      name: Jegor
+      password: $2b$12$SLwXpUeyMVIgMStS2V3mYuvTSRN87I8UDNkw71vjiO9PCwHB.J/zW
 preauthorized:
   emails:
   - melsby@gmail.com
