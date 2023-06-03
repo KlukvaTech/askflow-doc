@@ -16,6 +16,11 @@ import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 
+import requests
+
+URL_YADISK = 'https://cloud-api.yandex.net/v1/disk/public/resources'
+HEADERS_YADISK = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+
 
 DEFAULT_QUESTION_AT_STARTUP = os.getenv("DEFAULT_QUESTION_AT_STARTUP", "What's the capital of France?")
 DEFAULT_ANSWER_AT_STARTUP = os.getenv("DEFAULT_ANSWER_AT_STARTUP", "Paris")
@@ -111,8 +116,25 @@ def main():
                                 st.sidebar.write(raw_json)
                         except Exception as e:
                             st.sidebar.write(str(data_file.name) + " &nbsp;&nbsp; ❌ ")
-                            st.sidebar.write("_This file could not be parsed, see the logs for more information._")
-                        
+                            st.sidebar.write("This file could not be parsed")
+
+            link_yadisk = st.sidebar.text_input('Link to your shared folder in Yandex.Disk', placeholder='https://disk.yandex.ru/d/5b4fiK7XpWMdgr')
+            if not link_yadisk.startswith("https://"):
+                link_yadisk = "https://" + link_yadisk
+            if st.sidebar.button("Send"):
+                try:
+                    response_yadisk = requests.get(f'{URL_YADISK}?public_key={link_yadisk}', headers=HEADERS_YADISK).json()
+                    for item in response_yadisk['_embedded']['items']:
+                        if (item['mime_type'] in {'text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}):
+                            yadisk_file = requests.get(item['file'])
+                            try:
+                                raw_json = upload_doc(yadisk_file, username)
+                                st.sidebar.write(str(item['name']) + " &nbsp;&nbsp; ✅ ")
+                            except Exception as e:
+                                st.sidebar.write(item['name'] + " &nbsp;&nbsp; ❌ ")
+                                st.sidebar.write("This file could not be parsed") 
+                except Exception as e:
+                    st.sidebar.write("This link is not valid ❌") 
 
             hs_version = ""
             try:
