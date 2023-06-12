@@ -16,6 +16,8 @@ import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 
+import time
+
 import requests
 
 URL_YADISK = 'https://cloud-api.yandex.net/v1/disk/public/resources'
@@ -126,7 +128,8 @@ def main():
                         if (item['mime_type'] in {'text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}):
                             yadisk_file = requests.get(item['file'])
                             try:
-                                raw_json = upload_doc(yadisk_file, username)
+                                file_ask = st.runtime.uploaded_file_manager.UploadedFile(st.runtime.uploaded_file_manager.UploadedFileRec(round(time.time()*1000), item['name'], item['name'].split('.')[-1], yadisk_file.content))
+                                raw_json = upload_doc(file_ask, username)
                                 st.sidebar.write(str(item['name']) + " &nbsp;&nbsp; ✅ ")
                             except Exception as e:
                                 st.sidebar.write(item['name'] + " &nbsp;&nbsp; ❌ ")
