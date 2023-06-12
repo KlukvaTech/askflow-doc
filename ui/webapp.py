@@ -22,8 +22,8 @@ URL_YADISK = 'https://cloud-api.yandex.net/v1/disk/public/resources'
 HEADERS_YADISK = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
 
-DEFAULT_QUESTION_AT_STARTUP = os.getenv("DEFAULT_QUESTION_AT_STARTUP", "What's the capital of France?")
-DEFAULT_ANSWER_AT_STARTUP = os.getenv("DEFAULT_ANSWER_AT_STARTUP", "Paris")
+DEFAULT_QUESTION_AT_STARTUP = os.getenv("DEFAULT_QUESTION_AT_STARTUP", "В чём разница между UML и BPMN?")
+DEFAULT_ANSWER_AT_STARTUP = os.getenv("DEFAULT_ANSWER_AT_STARTUP", "UML - это полноценный язык моделирования, BPMN — это всего лишь нотация описания бизнес-процессов")
 
 DEFAULT_DOCS_FROM_RETRIEVER = int(os.getenv("DEFAULT_DOCS_FROM_RETRIEVER", "3"))
 DEFAULT_NUMBER_OF_ANSWERS = int(os.getenv("DEFAULT_NUMBER_OF_ANSWERS", "3"))
@@ -79,8 +79,6 @@ def main():
         name, authentication_status, username = authenticator.login('Login', 'main')  
         
         if authentication_status:
-            
-            authenticator.logout('Logout', 'main', key='unique_key')
             st.sidebar.header("Options")
             top_k_reader = st.sidebar.slider(
                 "Max. number of answers",
@@ -169,6 +167,9 @@ def main():
                 unsafe_allow_html=True,
             )
 
+            with st.sidebar:
+                authenticator.logout('Logout', 'main', key='unique_key')
+
             try:
                 df = pd.read_csv(EVAL_LABELS, sep=";")
             except Exception:
@@ -186,34 +187,33 @@ def main():
                 label="question",
                 label_visibility="hidden",
             )
-            col1, col2 = st.columns(2)
-            col1.markdown("<style>.stButton button {width:100%;}</style>", unsafe_allow_html=True)
-            col2.markdown("<style>.stButton button {width:100%;}</style>", unsafe_allow_html=True)
+            col1 = st.columns(1)
+            col1[0].markdown("<style>.stButton button {width:100%;}</style>", unsafe_allow_html=True)
 
             # Run button
-            run_pressed = col1.button("Run")
+            run_pressed = col1[0].button("Run")
 
             # Get next random question from the CSV
-            if col2.button("Random question"):
-                reset_results()
-                new_row = df.sample(1)
-                while (
-                    new_row["Question Text"].values[0] == st.session_state.question
-                ):  # Avoid picking the same question twice (the change is not visible on the UI)
-                    new_row = df.sample(1)
-                st.session_state.question = new_row["Question Text"].values[0]
-                st.session_state.answer = new_row["Answer"].values[0]
-                st.session_state.random_question_requested = True
-                # Re-runs the script setting the random question as the textbox value
-                # Unfortunately necessary as the Random Question button is _below_ the textbox
-                if hasattr(st, "scriptrunner"):
-                    raise st.scriptrunner.script_runner.RerunException(
-                        st.scriptrunner.script_requests.RerunData(widget_states=None)
-                    )
-                raise st.runtime.scriptrunner.script_runner.RerunException(
-                    st.runtime.scriptrunner.script_requests.RerunData(widget_states=None)
-                )
-            st.session_state.random_question_requested = False
+            # if col2.button("Random question"):
+            #     reset_results()
+            #     new_row = df.sample(1)
+            #     while (
+            #         new_row["Question Text"].values[0] == st.session_state.question
+            #     ):  # Avoid picking the same question twice (the change is not visible on the UI)
+            #         new_row = df.sample(1)
+            #     st.session_state.question = new_row["Question Text"].values[0]
+            #     st.session_state.answer = new_row["Answer"].values[0]
+            #     st.session_state.random_question_requested = True
+            #     # Re-runs the script setting the random question as the textbox value
+            #     # Unfortunately necessary as the Random Question button is _below_ the textbox
+            #     if hasattr(st, "scriptrunner"):
+            #         raise st.scriptrunner.script_runner.RerunException(
+            #             st.scriptrunner.script_requests.RerunData(widget_states=None)
+            #         )
+            #     raise st.runtime.scriptrunner.script_runner.RerunException(
+            #         st.runtime.scriptrunner.script_requests.RerunData(widget_states=None)
+            #     )
+            # st.session_state.random_question_requested = False
 
             run_query = (
                 run_pressed or question != st.session_state.question
@@ -321,6 +321,8 @@ def main():
                 if debug:
                     st.subheader("REST API JSON response")
                     st.write(st.session_state.raw_json)
+
+            
         elif authentication_status is False:
             st.error('Username/password is incorrect')
     
