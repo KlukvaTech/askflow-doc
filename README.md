@@ -1,4 +1,7 @@
 # Askflow-doc
+
+https://github.com/KlukvaTech/askflow-doc/assets/19909792/5d8376cf-f0bf-4354-8dc3-756189ff23ad
+
 ## Usage
 Downloading linux dependencies:
 ```sh
